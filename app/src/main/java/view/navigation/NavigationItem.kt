@@ -11,12 +11,17 @@ sealed class NavigationItem(
         route = "home", title = "Главная", icon = Icons.Outlined.Home
     )
 
-    data object NewsScreen : NavigationItem(
-        route = "news", title = "Новости", icon = Icons.Outlined.Menu
+    data object PostsScreen : NavigationItem(
+        route = "posts", title = "Посты", icon = Icons.Outlined.Menu
     )
 
     data object SettingsScreen : NavigationItem(
         route = "settings", title = "Настройки", icon = Icons.Outlined.Settings
+    )
+
+    data object PostDetailsScreen : NavigationItem(
+        route = "post_details/{postId}",
+        title = "Детальная информация о посте"
     )
 
 }

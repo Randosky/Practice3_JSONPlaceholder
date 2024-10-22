@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Ovinkin_Practice3</string>
+    <string name="home_screen">Домашняя страница</string>
+    <string name="settings_screen">Страница настроек</string>
+    <string name="posts_screen">Страница постов</string>
+    <string name="post_details_screen">Информация о посте</string>
 </resources>

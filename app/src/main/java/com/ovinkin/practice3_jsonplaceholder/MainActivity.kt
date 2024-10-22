@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -36,11 +37,13 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun AppNavigation(navigationController: NavHostController) {
 
-        Scaffold(bottomBar = {
-            BottomBar(
-                navController = navigationController,
-            )
-        }) { paddingValues ->
+        Scaffold(
+            modifier = Modifier.fillMaxSize(),
+            bottomBar = {
+                BottomBar(
+                    navController = navigationController,
+                )
+            }) { paddingValues ->
             Box(
                 modifier = Modifier.padding(paddingValues)
             ) {
