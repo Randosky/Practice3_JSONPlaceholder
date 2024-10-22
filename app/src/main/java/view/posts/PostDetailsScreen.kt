@@ -175,11 +175,13 @@ fun CommentItem(comment: Comment) {
     ) {
         Text(
             text = comment.name,
+            color = Color.Black,
             style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
             fontSize = 16.sp
         )
         Text(
             text = comment.body,
+            color = Color.Black,
             style = MaterialTheme.typography.bodySmall,
             fontSize = 14.sp,
             modifier = Modifier.padding(top = 4.dp)
