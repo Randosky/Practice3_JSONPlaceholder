@@ -13,9 +13,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,19 +31,21 @@ import com.ovinkin.practice3_jsonplaceholder.presentation.model.CommentUiModel
 import com.ovinkin.practice3_jsonplaceholder.presentation.model.PostUiModel
 import com.ovinkin.practice3_jsonplaceholder.presentation.viewModel.CommentsViewModel
 import com.ovinkin.practice3_jsonplaceholder.presentation.viewModel.UsersViewModel
-import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun PostDetailsScreen(
     post: PostUiModel,
+    commentsViewModel: CommentsViewModel,
+    userViewModel: UsersViewModel,
     navController: NavController
 ) {
 
-    val commentsViewModel = koinViewModel<CommentsViewModel>()
-    val commentsState = commentsViewModel.viewState
+    LaunchedEffect(Unit) {
+        commentsViewModel.fetchCommentsByPost(post.id)
+        userViewModel.fetchUserById(post.userId)
+    }
 
-    val userViewModel = koinViewModel<UsersViewModel>()
-    userViewModel.fetchUserById(post.userId)
+    val commentsState = commentsViewModel.viewState
     val userState = userViewModel.viewState
 
     val lazyColumnState = rememberSaveable(saver = LazyListState.Saver) {
@@ -57,8 +61,7 @@ fun PostDetailsScreen(
             .padding(16.dp)
     ) {
         Button(
-            onClick = { navController.popBackStack() },
-            modifier = Modifier.align(Alignment.End)
+            onClick = { navController.popBackStack() }, modifier = Modifier.align(Alignment.End)
         ) {
             Text(text = "Назад")
         }
@@ -77,97 +80,102 @@ fun PostDetailsScreen(
             modifier = Modifier.padding(top = 8.dp)
         )
 
-        ConstraintLayout(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth()
-                .background(
-                    MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                    shape = RoundedCornerShape(8.dp)
+        if (userState.loading || commentsState.loading) {
+            CircularProgressIndicator()
+        } else if (userState.error !== null || commentsState.error !== null) {
+            userState.error?.let { errorMessage ->
+                Text(
+                    text = "Ошибка загрузки данных автора: $errorMessage",
+                    color = Color.Red,
+                    modifier = Modifier.padding(top = 16.dp)
                 )
-                .padding(16.dp)
-        ) {
-            val (title, nameText, usernameText, emailText, phoneText, websiteText, companyText) = createRefs()
+            }
+            commentsState.error?.let { errorMessage ->
+                Text(
+                    text = "Ошибка загрузки комментариев: $errorMessage",
+                    color = Color.Red,
+                    modifier = Modifier.padding(top = 16.dp)
+                )
+            }
+        } else {
+            ConstraintLayout(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth()
+                    .background(
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                        shape = RoundedCornerShape(8.dp)
+                    )
+                    .padding(16.dp)
+            ) {
+                val (title, nameText, usernameText, emailText, phoneText, websiteText, companyText) = createRefs()
+
+                Text(text = "Информация об авторе",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier
+                        .constrainAs(title) {
+                            top.linkTo(parent.top)
+                            start.linkTo(parent.start)
+                            end.linkTo(parent.end)
+                        }
+                        .padding(8.dp))
+                Text(text = "Имя: ${userState.user.name}",
+                    modifier = Modifier
+                        .constrainAs(nameText) {
+                            top.linkTo(title.bottom, margin = 8.dp)
+                            start.linkTo(parent.start)
+                        }
+                        .padding(vertical = 4.dp))
+                Text(text = "Пользователь: ${userState.user.userName}",
+                    modifier = Modifier
+                        .constrainAs(usernameText) {
+                            top.linkTo(nameText.bottom, margin = 4.dp)
+                            start.linkTo(parent.start)
+                        }
+                        .padding(vertical = 4.dp))
+                Text(text = "Email: ${userState.user.email}",
+                    modifier = Modifier
+                        .constrainAs(emailText) {
+                            top.linkTo(usernameText.bottom, margin = 4.dp)
+                            start.linkTo(parent.start)
+                        }
+                        .padding(vertical = 4.dp))
+                Text(text = "Телефон: ${userState.user.phone}",
+                    modifier = Modifier
+                        .constrainAs(phoneText) {
+                            top.linkTo(emailText.bottom, margin = 4.dp)
+                            start.linkTo(parent.start)
+                        }
+                        .padding(vertical = 4.dp))
+                Text(text = "Вебсайт: ${userState.user.website}",
+                    modifier = Modifier
+                        .constrainAs(websiteText) {
+                            top.linkTo(phoneText.bottom, margin = 4.dp)
+                            start.linkTo(parent.start)
+                        }
+                        .padding(vertical = 4.dp))
+                Text(text = "Компания: ${userState.user.company.name}",
+                    modifier = Modifier
+                        .constrainAs(companyText) {
+                            top.linkTo(websiteText.bottom, margin = 4.dp)
+                            start.linkTo(parent.start)
+                        }
+                        .padding(vertical = 4.dp))
+            }
 
             Text(
-                text = "Информация об авторе",
+                text = "Комментарии:",
                 style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier
-                    .constrainAs(title) {
-                        top.linkTo(parent.top)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                    }
-                    .padding(8.dp)
+                fontSize = 18.sp,
+                modifier = Modifier.padding(top = 24.dp)
             )
-            Text(
-                text = "Имя: ${userState.user.name}",
-                modifier = Modifier
-                    .constrainAs(nameText) {
-                        top.linkTo(title.bottom, margin = 8.dp)
-                        start.linkTo(parent.start)
-                    }
-                    .padding(vertical = 4.dp)
-            )
-            Text(
-                text = "Пользователь: ${userState.user.userName}",
-                modifier = Modifier
-                    .constrainAs(usernameText) {
-                        top.linkTo(nameText.bottom, margin = 4.dp)
-                        start.linkTo(parent.start)
-                    }
-                    .padding(vertical = 4.dp)
-            )
-            Text(
-                text = "Email: ${userState.user.email}",
-                modifier = Modifier
-                    .constrainAs(emailText) {
-                        top.linkTo(usernameText.bottom, margin = 4.dp)
-                        start.linkTo(parent.start)
-                    }
-                    .padding(vertical = 4.dp)
-            )
-            Text(
-                text = "Телефон: ${userState.user.phone}",
-                modifier = Modifier
-                    .constrainAs(phoneText) {
-                        top.linkTo(emailText.bottom, margin = 4.dp)
-                        start.linkTo(parent.start)
-                    }
-                    .padding(vertical = 4.dp)
-            )
-            Text(
-                text = "Вебсайт: ${userState.user.website}",
-                modifier = Modifier
-                    .constrainAs(websiteText) {
-                        top.linkTo(phoneText.bottom, margin = 4.dp)
-                        start.linkTo(parent.start)
-                    }
-                    .padding(vertical = 4.dp)
-            )
-            Text(
-                text = "Компания: ${userState.user.company.name}",
-                modifier = Modifier
-                    .constrainAs(companyText) {
-                        top.linkTo(websiteText.bottom, margin = 4.dp)
-                        start.linkTo(parent.start)
-                    }
-                    .padding(vertical = 4.dp)
-            )
-        }
 
-        Text(
-            text = "Комментарии:",
-            style = MaterialTheme.typography.titleMedium,
-            fontSize = 18.sp,
-            modifier = Modifier.padding(top = 24.dp)
-        )
-
-        LazyColumn(
-            modifier = Modifier.height(250.dp), lazyColumnState
-        ) {
-            items(commentsState.comments) { comment ->
-                CommentItem(comment)
+            LazyColumn(
+                modifier = Modifier.height(250.dp), lazyColumnState
+            ) {
+                items(commentsState.comments) { comment ->
+                    CommentItem(comment)
+                }
             }
         }
     }

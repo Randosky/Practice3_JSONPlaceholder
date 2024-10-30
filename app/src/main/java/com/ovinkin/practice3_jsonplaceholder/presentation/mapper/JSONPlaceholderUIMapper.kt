@@ -34,7 +34,15 @@ class JSONPlaceholderUIMapper {
         }
     }
 
+    fun mapUsers(users: List<UserEntity>): List<UserUiModel> {
+        return users.map { mapUser(it) }
+    }
+
     fun mapUserById(user: UserEntity): UserUiModel {
+        return mapUser(user)
+    }
+
+    private fun mapUser(user: UserEntity): UserUiModel {
         return UserUiModel(
             id = user.id,
             name = user.name,

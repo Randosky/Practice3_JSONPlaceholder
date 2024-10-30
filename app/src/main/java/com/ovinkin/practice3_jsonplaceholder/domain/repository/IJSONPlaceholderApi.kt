@@ -10,5 +10,7 @@ interface IJSONPlaceholderRepository {
 
     suspend fun getCommentsByPost(postId: Int): List<CommentEntity>
 
+    suspend fun getUsers(): List<UserEntity>
+
     suspend fun getUserById(userId: Int): UserEntity
 }

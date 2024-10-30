@@ -9,11 +9,17 @@ import com.ovinkin.practice3_jsonplaceholder.presentation.view.HomeScreen
 import com.ovinkin.practice3_jsonplaceholder.presentation.view.SettingsScreen
 import com.ovinkin.practice3_jsonplaceholder.presentation.view.posts.PostDetailsScreen
 import com.ovinkin.practice3_jsonplaceholder.presentation.view.posts.PostsScreen
+import com.ovinkin.practice3_jsonplaceholder.presentation.viewModel.CommentsViewModel
 import com.ovinkin.practice3_jsonplaceholder.presentation.viewModel.PostsViewModel
+import com.ovinkin.practice3_jsonplaceholder.presentation.viewModel.UsersViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun NavigationHost(navController: NavHostController) {
+
+    val postsViewModel = koinViewModel<PostsViewModel>()
+    val userViewModel = koinViewModel<UsersViewModel>()
+    val commentsViewModel = koinViewModel<CommentsViewModel>()
 
     NavHost(
         navController, startDestination = NavigationItem.HomeScreen.route
@@ -22,17 +28,15 @@ fun NavigationHost(navController: NavHostController) {
             HomeScreen()
         }
         composable(NavigationItem.PostsScreen.route) {
-            PostsScreen(navController)
+            PostsScreen(postsViewModel, userViewModel, navController)
         }
         composable(NavigationItem.PostDetailsScreen.route) { backStackEntry ->
             val postId = backStackEntry.arguments?.getString("postId")
 
-            val postsViewModel = koinViewModel<PostsViewModel>()
-
             val post = postsViewModel.getPostById(postId?.toIntOrNull())
 
             if (post != null) {
-                PostDetailsScreen(post, navController)
+                PostDetailsScreen(post, commentsViewModel, userViewModel, navController)
             }
         }
         composable(NavigationItem.SettingsScreen.route) {

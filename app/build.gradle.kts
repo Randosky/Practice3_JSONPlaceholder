@@ -51,8 +51,6 @@ android {
 
 dependencies {
 
-    implementation(libs.modo)
-    implementation(libs.mododevoptions)
     implementation(libs.koin.core)
     implementation(libs.koin.androidx.compose)
     implementation(libs.retrofit)

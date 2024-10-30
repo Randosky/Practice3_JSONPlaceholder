@@ -14,6 +14,9 @@ interface JSONPlaceholderApi {
     @GET("comments")
     suspend fun getCommentsByPost(@Query("postId") postId: Int): List<CommentResponse>
 
+    @GET("users")
+    suspend fun getUsers(): List<UserResponse>
+
     @GET("users/{id}")
     suspend fun getUserById(@Path("id") userId: Int): UserResponse
 }

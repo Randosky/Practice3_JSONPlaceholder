@@ -40,6 +40,10 @@ class UsersViewModel(
     private val mutableState = MutableUserState()
     val viewState = mutableState as UserState
 
+    init {
+        fetchUsers()
+    }
+
     fun fetchUserById(userId: Int) {
         viewModelScope.launchLoadingAndError(handleError = {
             mutableState.error = it.localizedMessage
@@ -51,8 +55,20 @@ class UsersViewModel(
         }
     }
 
+    fun fetchUsers() {
+        viewModelScope.launchLoadingAndError(handleError = {
+            mutableState.error = it.localizedMessage
+        }, updateLoading = { mutableState.loading = it }) {
+            mutableState.users = emptyList()
+            mutableState.error = null
+
+            mutableState.users = mapper.mapUsers(repository.getUsers())
+        }
+    }
+
     private class MutableUserState : UserState {
         override var user: UserUiModel by mutableStateOf(DEFAULT_USER)
+        override var users: List<UserUiModel> by mutableStateOf(emptyList())
         override var error: String? by mutableStateOf(null)
         override var loading: Boolean by mutableStateOf(false)
     }

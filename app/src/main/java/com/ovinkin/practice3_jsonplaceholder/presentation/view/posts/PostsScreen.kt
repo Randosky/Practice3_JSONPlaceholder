@@ -12,11 +12,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -28,13 +31,14 @@ import com.ovinkin.practice3_jsonplaceholder.presentation.model.PostUiModel
 import com.ovinkin.practice3_jsonplaceholder.presentation.model.user.UserUiModel
 import com.ovinkin.practice3_jsonplaceholder.presentation.viewModel.PostsViewModel
 import com.ovinkin.practice3_jsonplaceholder.presentation.viewModel.UsersViewModel
-import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun PostsScreen(navController: NavHostController) {
+fun PostsScreen(
+    postsViewModel: PostsViewModel, userViewModel: UsersViewModel, navController: NavHostController
+) {
 
-    val postsViewModel = koinViewModel<PostsViewModel>()
     val postsState = postsViewModel.viewState
+    val userState = userViewModel.viewState
 
     val lazyColumnState = rememberSaveable(saver = LazyListState.Saver) {
         LazyListState(
@@ -59,16 +63,22 @@ fun PostsScreen(navController: NavHostController) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-
-
-        LazyColumn(modifier = Modifier.fillMaxSize(), lazyColumnState) {
-            items(postsState.posts) { post ->
-                val userViewModel = koinViewModel<UsersViewModel>()
-                userViewModel.fetchUserById(post.userId)
-                val userState = userViewModel.viewState
-
-                PostItem(post, userState.user) {
-                    navController.navigate("post_details/${post.id}")
+        if (postsState.loading || userState.loading) {
+            CircularProgressIndicator()
+        } else if (postsState.error !== null) {
+            postsState.error?.let { errorMessage ->
+                Text(
+                    text = "Ошибка загрузки данных постов: $errorMessage",
+                    color = Color.Red,
+                    modifier = Modifier.padding(top = 16.dp)
+                )
+            }
+        } else {
+            LazyColumn(modifier = Modifier.fillMaxSize(), lazyColumnState) {
+                items(postsState.posts) { post ->
+                    PostItem(post) {
+                        navController.navigate("post_details/${post.id}")
+                    }
                 }
             }
         }
@@ -76,7 +86,8 @@ fun PostsScreen(navController: NavHostController) {
 }
 
 @Composable
-fun PostItem(post: PostUiModel, user: UserUiModel?, onPostClick: () -> Unit) {
+fun PostItem(post: PostUiModel, onPostClick: () -> Unit) {
+
     Card(
         modifier = Modifier
             .padding(vertical = 8.dp)
@@ -114,9 +125,7 @@ fun PostItem(post: PostUiModel, user: UserUiModel?, onPostClick: () -> Unit) {
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = post.body,
-                style = MaterialTheme.typography.bodyMedium,
-                fontSize = 14.sp
+                text = post.body, style = MaterialTheme.typography.bodyMedium, fontSize = 14.sp
             )
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -127,17 +136,6 @@ fun PostItem(post: PostUiModel, user: UserUiModel?, onPostClick: () -> Unit) {
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
-                    modifier = Modifier
-                        .padding(bottom = 4.dp)
-                        .weight(1f)
-                )
-
-                Text(
-                    text = "Автор: ${user?.userName}",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
-                    textAlign = TextAlign.End,
                     modifier = Modifier
                         .padding(bottom = 4.dp)
                         .weight(1f)

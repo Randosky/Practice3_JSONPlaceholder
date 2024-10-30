@@ -34,7 +34,15 @@ class JSONPlaceholderResponseToEntityMapper {
         }
     }
 
+    fun mapUsers(response: List<UserResponse>): List<UserEntity> {
+        return response.map { mapUser(it) }
+    }
+
     fun mapUserById(response: UserResponse): UserEntity {
+        return mapUser(response)
+    }
+
+    private fun mapUser(response: UserResponse): UserEntity {
         return UserEntity(
             id = response.id ?: 0,
             name = response.name.orEmpty(),

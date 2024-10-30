@@ -21,6 +21,10 @@ class JSONPlaceholderRepository(
         return withContext(Dispatchers.IO) { mapper.mapCommentsByPost(api.getCommentsByPost(postId)) }
     }
 
+    override suspend fun getUsers(): List<UserEntity> {
+        return withContext(Dispatchers.IO) { mapper.mapUsers(api.getUsers()) }
+    }
+
     override suspend fun getUserById(userId: Int): UserEntity {
         return withContext(Dispatchers.IO) { mapper.mapUserById(api.getUserById(userId)) }
     }
