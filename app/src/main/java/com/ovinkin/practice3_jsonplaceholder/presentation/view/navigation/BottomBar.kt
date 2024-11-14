@@ -16,7 +16,8 @@ fun BottomBar(navController: NavHostController) {
     val screens = listOf(
         NavigationItem.HomeScreen,
         NavigationItem.PostsScreen,
-        NavigationItem.SettingsScreen
+        NavigationItem.SettingsScreen,
+        NavigationItem.FavouritesScreen,
     )
 
     BottomNavigation {

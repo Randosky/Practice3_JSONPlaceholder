@@ -1,7 +1,9 @@
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.ui.graphics.vector.ImageVector
 
 sealed class NavigationItem(
@@ -24,4 +26,9 @@ sealed class NavigationItem(
         title = "Детальная информация о посте"
     )
 
+    data object FavouritesScreen : NavigationItem(
+        route = "favourites",
+        title = "Избранное",
+        icon = Icons.Outlined.Favorite
+    )
 }

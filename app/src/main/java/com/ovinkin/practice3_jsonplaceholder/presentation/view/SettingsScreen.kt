@@ -2,25 +2,33 @@ package com.ovinkin.practice3_jsonplaceholder.presentation.view
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.ovinkin.practice3_jsonplaceholder.R
+import com.ovinkin.practice3_jsonplaceholder.presentation.viewModel.PostsViewModel
 
-@Preview
 @Composable
-fun SettingsScreen() {
+fun SettingsScreen(
+    postsViewModel: PostsViewModel
+) {
+    var userName by remember { mutableStateOf(TextFieldValue("")) }
+    var postContent by remember { mutableStateOf(TextFieldValue("")) }
+
     Column(
         modifier = Modifier
             .padding(16.dp)
@@ -28,14 +36,41 @@ fun SettingsScreen() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        Text(
-            modifier = Modifier.fillMaxWidth(),
-            textAlign = TextAlign.Center,
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary,
-            style = MaterialTheme.typography.titleLarge,
-            text = stringResource(id = R.string.settings_screen),
+        Text(text = "Filter Settings", style = MaterialTheme.typography.titleLarge)
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedTextField(
+            value = userName,
+            onValueChange = {
+                userName = it
+                postsViewModel.filterPosts(userName.text, postContent.text)
+            },
+            label = { Text("Username") },
+            modifier = Modifier.fillMaxWidth()
         )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        OutlinedTextField(
+            value = postContent,
+            onValueChange = {
+                postContent = it
+                postsViewModel.filterPosts(userName.text, postContent.text)
+            },
+            label = { Text("Post Content") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(onClick = {
+            postsViewModel.filterPosts(
+                userName.text.takeIf { it.isNotBlank() },
+                postContent.text.takeIf { it.isNotBlank() }
+            )
+        }) {
+            Text("Apply Filters")
+        }
     }
 }

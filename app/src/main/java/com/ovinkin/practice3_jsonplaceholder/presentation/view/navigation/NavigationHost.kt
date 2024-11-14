@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.ovinkin.practice3_jsonplaceholder.presentation.view.FavouritesScreen
 import com.ovinkin.practice3_jsonplaceholder.presentation.view.HomeScreen
 import com.ovinkin.practice3_jsonplaceholder.presentation.view.SettingsScreen
 import com.ovinkin.practice3_jsonplaceholder.presentation.view.posts.PostDetailsScreen
@@ -39,8 +40,11 @@ fun NavigationHost(navController: NavHostController) {
                 PostDetailsScreen(post, commentsViewModel, userViewModel, navController)
             }
         }
+        composable(NavigationItem.FavouritesScreen.route) {
+            FavouritesScreen()
+        }
         composable(NavigationItem.SettingsScreen.route) {
-            SettingsScreen()
+            SettingsScreen(postsViewModel)
         }
     }
 }

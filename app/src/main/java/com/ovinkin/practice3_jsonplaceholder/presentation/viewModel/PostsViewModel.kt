@@ -5,31 +5,82 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ovinkin.practice3_jsonplaceholder.coroutinesUtils.launchLoadingAndError
 import com.ovinkin.practice3_jsonplaceholder.domain.repository.IJSONPlaceholderRepository
+import com.ovinkin.practice3_jsonplaceholder.presentation.datastore.PostsDataStore
 import com.ovinkin.practice3_jsonplaceholder.presentation.mapper.JSONPlaceholderUIMapper
 import com.ovinkin.practice3_jsonplaceholder.presentation.model.PostUiModel
 import com.ovinkin.practice3_jsonplaceholder.presentation.state.PostsListState
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 class PostsViewModel(
-    private val repository: IJSONPlaceholderRepository, private val mapper: JSONPlaceholderUIMapper
+    private val repository: IJSONPlaceholderRepository,
+    private val mapper: JSONPlaceholderUIMapper,
+    private val postsDataStore: PostsDataStore
 ) : ViewModel() {
 
     private val mutableState = MutablePostsListState()
     val viewState = mutableState as PostsListState
 
     init {
-        fetchPosts()
+        loadPosts()
     }
 
-    fun fetchPosts() {
-        viewModelScope.launchLoadingAndError(
-            handleError = { mutableState.error = it.localizedMessage },
-            updateLoading = { mutableState.loading = it }) {
-            mutableState.posts = emptyList()
+    private fun loadPosts() {
+        viewModelScope.launch {
+            postsDataStore.userNameFlow.collectLatest { userName ->
+                postsDataStore.postContentFlow.collectLatest { postContent ->
+                    filterPosts(userName, postContent)
+                }
+            }
+        }
+    }
+
+    private suspend fun fetchPostsFromNetwork(): List<PostUiModel> {
+        try {
+            val posts = mapper.mapPosts(repository.getPosts())
             mutableState.error = null
 
-            mutableState.posts = mapper.mapPosts(repository.getPosts())
+            return posts
+        } catch (e: Exception) {
+            mutableState.posts = emptyList()
+            mutableState.error = e.localizedMessage
+        }
+
+        return emptyList()
+    }
+
+    fun filterPosts(userName: String?, postContent: String?) {
+        viewModelScope.launch {
+            val allPosts = fetchPostsFromNetwork()
+
+            val filteredPosts = allPosts.filter { post ->
+                val matchesUser = userName?.let {
+                    repository.getUserById(post.userId).userName.contains(it, ignoreCase = true)
+                } ?: true
+
+                val matchesContent = postContent?.let {
+                    post.title.contains(it, ignoreCase = true) || post.body.contains(
+                        it, ignoreCase = true
+                    )
+                } ?: true
+
+                matchesUser && matchesContent
+            }
+
+            mutableState.error = null
+            mutableState.posts = filteredPosts
+
+            postsDataStore.saveFilters(userName, postContent)
+            postsDataStore.saveFilteredPosts(filteredPosts)
+        }
+    }
+
+    fun clearFilters() {
+        viewModelScope.launch {
+            mutableState.posts = emptyList()
+            postsDataStore.saveFilters(null, null)
+            postsDataStore.saveFilteredPosts(emptyList())
         }
     }
 
