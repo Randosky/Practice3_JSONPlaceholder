@@ -14,7 +14,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 @Composable
 fun BottomBar(navController: NavHostController) {
     val screens = listOf(
-        NavigationItem.HomeScreen,
         NavigationItem.PostsScreen,
         NavigationItem.SettingsScreen,
         NavigationItem.FavouritesScreen,
@@ -25,22 +24,17 @@ fun BottomBar(navController: NavHostController) {
         val currentDestinationRoute = navBackStackEntry?.destination?.route
 
         screens.forEach { screen ->
-            BottomNavigationItem(
-                selected = currentDestinationRoute == screen.route,
-                label = {
-                    Text(text = screen.title!!)
-                },
-                icon = {
-                    Icon(imageVector = screen.icon!!, contentDescription = "")
-                },
-                onClick = {
-                    navController.navigate(screen.route) {
-                        popUpTo(navController.graph.findStartDestination().id)
-                        launchSingleTop = true
-                        restoreState = true
-                    }
+            BottomNavigationItem(selected = currentDestinationRoute == screen.route, label = {
+                Text(text = screen.title!!)
+            }, icon = {
+                Icon(imageVector = screen.icon!!, contentDescription = "")
+            }, onClick = {
+                navController.navigate(screen.route) {
+                    popUpTo(navController.graph.findStartDestination().id)
+                    launchSingleTop = true
+                    restoreState = true
                 }
-            )
+            })
         }
     }
 }

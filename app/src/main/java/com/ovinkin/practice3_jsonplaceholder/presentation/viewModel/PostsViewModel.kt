@@ -6,17 +6,14 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ovinkin.practice3_jsonplaceholder.domain.repository.IJSONPlaceholderRepository
-import com.ovinkin.practice3_jsonplaceholder.presentation.datastore.PostsDataStore
 import com.ovinkin.practice3_jsonplaceholder.presentation.mapper.JSONPlaceholderUIMapper
 import com.ovinkin.practice3_jsonplaceholder.presentation.model.PostUiModel
 import com.ovinkin.practice3_jsonplaceholder.presentation.state.PostsListState
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class PostsViewModel(
     private val repository: IJSONPlaceholderRepository,
     private val mapper: JSONPlaceholderUIMapper,
-    private val postsDataStore: PostsDataStore
 ) : ViewModel() {
 
     private val mutableState = MutablePostsListState()
@@ -28,11 +25,6 @@ class PostsViewModel(
 
     private fun loadPosts() {
         viewModelScope.launch {
-            postsDataStore.userNameFlow.collectLatest { userName ->
-                postsDataStore.postContentFlow.collectLatest { postContent ->
-                    filterPosts(userName, postContent)
-                }
-            }
         }
     }
 
@@ -70,17 +62,6 @@ class PostsViewModel(
 
             mutableState.error = null
             mutableState.posts = filteredPosts
-
-            postsDataStore.saveFilters(userName, postContent)
-            postsDataStore.saveFilteredPosts(filteredPosts)
-        }
-    }
-
-    fun clearFilters() {
-        viewModelScope.launch {
-            mutableState.posts = emptyList()
-            postsDataStore.saveFilters(null, null)
-            postsDataStore.saveFilteredPosts(emptyList())
         }
     }
 

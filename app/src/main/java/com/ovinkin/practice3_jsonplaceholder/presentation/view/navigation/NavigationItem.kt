@@ -9,10 +9,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 sealed class NavigationItem(
     val route: String, val title: String, val icon: ImageVector? = null
 ) {
-    data object HomeScreen : NavigationItem(
-        route = "home", title = "Главная", icon = Icons.Outlined.Home
-    )
-
     data object PostsScreen : NavigationItem(
         route = "posts", title = "Посты", icon = Icons.Outlined.Menu
     )

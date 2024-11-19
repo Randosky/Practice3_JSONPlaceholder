@@ -1,52 +1,34 @@
 package com.ovinkin.practice3_jsonplaceholder.presentation.datastore
 
 import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.google.gson.Gson
-import com.ovinkin.practice3_jsonplaceholder.presentation.model.PostUiModel
-import kotlinx.coroutines.flow.Flow
+import com.ovinkin.practice3_jsonplaceholder.presentation.model.SettingsUiModel
 import kotlinx.coroutines.flow.map
 
-// Создаем расширение для DataStore
-private val Context.dataStore by preferencesDataStore(name = "posts_preferences")
+private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "posts_data_store")
 
 class PostsDataStore(private val context: Context) {
 
     companion object {
-        private val USERNAME_KEY = stringPreferencesKey("filter_user_name")
-        private val POST_CONTENT_KEY = stringPreferencesKey("filter_post_content")
-        private val FILTERED_POSTS_KEY = stringPreferencesKey("filtered_posts")
+        private val USERNAME_FILTER_KEY = stringPreferencesKey("user_name_filter")
+        private val POST_CONTENT_FILTER_KEY = stringPreferencesKey("post_content_filter")
     }
 
-    // Получение текущих значений фильтров из DataStore
-    val userNameFlow: Flow<String?> = context.dataStore.data.map { preferences ->
-        preferences[USERNAME_KEY]
-    }
-
-    val postContentFlow: Flow<String?> = context.dataStore.data.map { preferences ->
-        preferences[POST_CONTENT_KEY]
-    }
-
-    val filteredPostsFlow: Flow<List<PostUiModel>> = context.dataStore.data.map { preferences ->
-        val json = preferences[FILTERED_POSTS_KEY] ?: return@map emptyList()
-        Gson().fromJson(json, Array<PostUiModel>::class.java).toList()
-    }
-
-    // Функция для сохранения фильтров
-    suspend fun saveFilters(userName: String?, postContent: String?) {
-        context.dataStore.edit { preferences ->
-            preferences[USERNAME_KEY] = userName ?: ""
-            preferences[POST_CONTENT_KEY] = postContent ?: ""
+    suspend fun saveSettings(settingsData: SettingsUiModel) {
+        context.dataStore.edit { pref ->
+            pref[USERNAME_FILTER_KEY] = settingsData.userNameFilter
+            pref[POST_CONTENT_FILTER_KEY] = settingsData.postContentFilter
         }
     }
 
-    // Функция для сохранения отфильтрованных постов
-    suspend fun saveFilteredPosts(posts: List<PostUiModel>) {
-        context.dataStore.edit { preferences ->
-            val json = Gson().toJson(posts)
-            preferences[FILTERED_POSTS_KEY] = json
-        }
+    fun getSettings() = context.dataStore.data.map { pref ->
+        return@map SettingsUiModel(
+            userNameFilter = pref[USERNAME_FILTER_KEY] ?: "",
+            postContentFilter = pref[POST_CONTENT_FILTER_KEY] ?: ""
+        )
     }
 }
