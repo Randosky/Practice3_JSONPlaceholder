@@ -46,7 +46,7 @@ class JSONPlaceholderUIMapper {
         return UserUiModel(
             id = user.id,
             name = user.name,
-            userName = user.userName,
+            username = user.username,
             email = user.email,
             address = AddressUiModel(
                 street = user.address.street,

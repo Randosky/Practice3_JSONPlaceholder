@@ -130,7 +130,7 @@ fun PostDetailsScreen(
                         start.linkTo(parent.start)
                     }
                     .padding(vertical = 4.dp))
-                Text(text = "Пользователь: ${user.value?.userName}",
+                Text(text = "Пользователь: ${user.value?.username}",
                     modifier = Modifier
                         .constrainAs(usernameText) {
                             top.linkTo(nameText.bottom, margin = 4.dp)

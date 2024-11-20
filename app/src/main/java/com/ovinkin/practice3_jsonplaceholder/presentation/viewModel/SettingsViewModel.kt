@@ -14,7 +14,7 @@ class SettingsViewModel(
     private val postsDataStore: PostsDataStore,
 ) : ViewModel() {
 
-    var userNameFilter: String by mutableStateOf("")
+    var usernameFilter: String by mutableStateOf("")
     var postContentFilter: String by mutableStateOf("")
 
     init {
@@ -25,7 +25,7 @@ class SettingsViewModel(
 
     suspend fun getSettings() {
         postsDataStore.getSettings().collect { settings ->
-            userNameFilter = settings.userNameFilter
+            usernameFilter = settings.usernameFilter
             postContentFilter = settings.postContentFilter
         }
     }
@@ -34,16 +34,16 @@ class SettingsViewModel(
         setSettings("", "")
     }
 
-    fun setSettings(userName: String, postContent: String) {
+    fun setSettings(username: String, postContent: String) {
         viewModelScope.launch {
-            saveSettings(userName, postContent)
+            saveSettings(username, postContent)
         }
     }
 
-    private suspend fun saveSettings(userName: String, postContent: String) {
+    private suspend fun saveSettings(username: String, postContent: String) {
         postsDataStore.saveSettings(
             settingsData = SettingsUiModel(
-                userNameFilter = userName, postContentFilter = postContent
+                usernameFilter = username, postContentFilter = postContent
             )
         )
     }

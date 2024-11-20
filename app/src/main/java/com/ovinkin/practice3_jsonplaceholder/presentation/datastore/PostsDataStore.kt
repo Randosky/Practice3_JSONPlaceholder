@@ -20,14 +20,14 @@ class PostsDataStore(private val context: Context) {
 
     suspend fun saveSettings(settingsData: SettingsUiModel) {
         context.dataStore.edit { pref ->
-            pref[USERNAME_FILTER_KEY] = settingsData.userNameFilter
+            pref[USERNAME_FILTER_KEY] = settingsData.usernameFilter
             pref[POST_CONTENT_FILTER_KEY] = settingsData.postContentFilter
         }
     }
 
     fun getSettings() = context.dataStore.data.map { pref ->
         return@map SettingsUiModel(
-            userNameFilter = pref[USERNAME_FILTER_KEY] ?: "",
+            usernameFilter = pref[USERNAME_FILTER_KEY] ?: "",
             postContentFilter = pref[POST_CONTENT_FILTER_KEY] ?: ""
         )
     }

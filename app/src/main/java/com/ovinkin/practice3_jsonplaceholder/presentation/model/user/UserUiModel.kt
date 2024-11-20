@@ -7,7 +7,7 @@ import com.ovinkin.practice3_jsonplaceholder.presentation.model.user.address.Add
 data class UserUiModel(
     val id: Int,
     val name: String,
-    val userName: String,
+    val username: String,
     val email: String,
     val address: AddressUiModel,
     val phone: String,

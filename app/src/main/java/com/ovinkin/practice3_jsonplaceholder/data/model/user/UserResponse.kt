@@ -7,7 +7,7 @@ import com.ovinkin.practice3_jsonplaceholder.data.model.user.address.AddressResp
 data class UserResponse(
     val id: Int?,
     val name: String?,
-    val userName: String?,
+    val username: String?,
     val email: String?,
     val address: AddressResponse?,
     val phone: String?,

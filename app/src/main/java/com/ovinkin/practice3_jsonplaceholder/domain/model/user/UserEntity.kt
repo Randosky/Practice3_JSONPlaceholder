@@ -5,7 +5,7 @@ import com.ovinkin.practice3_jsonplaceholder.domain.model.user.address.AddressEn
 data class UserEntity(
     val id: Int,
     val name: String,
-    val userName: String,
+    val username: String,
     val email: String,
     val address: AddressEntity,
     val phone: String,

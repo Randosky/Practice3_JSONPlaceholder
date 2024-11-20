@@ -31,15 +31,15 @@ fun SettingsScreen(
 ) {
 
     val keyboardController = LocalSoftwareKeyboardController.current
-    var userName by remember { mutableStateOf(TextFieldValue(settingsViewModel.userNameFilter)) }
+    var username by remember { mutableStateOf(TextFieldValue(settingsViewModel.usernameFilter)) }
     var postContent by remember { mutableStateOf(TextFieldValue(settingsViewModel.postContentFilter)) }
 
     LaunchedEffect(Unit) {
         settingsViewModel.getSettings()
     }
 
-    LaunchedEffect(settingsViewModel.userNameFilter) {
-        userName = TextFieldValue(settingsViewModel.userNameFilter)
+    LaunchedEffect(settingsViewModel.usernameFilter) {
+        username = TextFieldValue(settingsViewModel.usernameFilter)
     }
 
     LaunchedEffect(settingsViewModel.postContentFilter) {
@@ -59,9 +59,9 @@ fun SettingsScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
-            value = userName,
+            value = username,
             onValueChange = {
-                userName = it
+                username = it
             },
             label = { Text("По имени автора") },
             modifier = Modifier.fillMaxWidth(),
@@ -89,13 +89,13 @@ fun SettingsScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(onClick = {
-            settingsViewModel.setSettings(userName.text, postContent.text)
+            settingsViewModel.setSettings(username.text, postContent.text)
             keyboardController?.hide()
         }) {
             Text("Фильтровать")
         }
 
-        if (settingsViewModel.userNameFilter.isNotEmpty() || settingsViewModel.postContentFilter.isNotEmpty()) {
+        if (settingsViewModel.usernameFilter.isNotEmpty() || settingsViewModel.postContentFilter.isNotEmpty()) {
             Button(onClick = {
                 settingsViewModel.resetSettings()
                 keyboardController?.hide()

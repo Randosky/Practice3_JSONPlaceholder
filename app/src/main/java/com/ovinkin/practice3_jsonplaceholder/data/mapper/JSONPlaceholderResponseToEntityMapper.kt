@@ -46,7 +46,7 @@ class JSONPlaceholderResponseToEntityMapper {
         return UserEntity(
             id = response.id ?: 0,
             name = response.name.orEmpty(),
-            userName = response.userName.orEmpty(),
+            username = response.username.orEmpty(),
             email = response.email.orEmpty(),
             address = AddressEntity(
                 street = response.address?.street.orEmpty(),

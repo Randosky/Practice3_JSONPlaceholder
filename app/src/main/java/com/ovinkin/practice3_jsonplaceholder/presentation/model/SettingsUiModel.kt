@@ -4,6 +4,6 @@ import androidx.compose.runtime.Immutable
 
 @Immutable
 data class SettingsUiModel(
-    val userNameFilter: String,
+    val usernameFilter: String,
     val postContentFilter: String,
 )

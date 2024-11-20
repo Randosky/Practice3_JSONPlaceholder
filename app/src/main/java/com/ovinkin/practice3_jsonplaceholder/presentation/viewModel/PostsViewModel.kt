@@ -41,7 +41,7 @@ class PostsViewModel(
 
     suspend fun getSettings() {
         postsDataStore.getSettings().collect { settings ->
-            mutableState.userNameFilter = settings.userNameFilter
+            mutableState.usernameFilter = settings.usernameFilter
             mutableState.postContentFilter = settings.postContentFilter
         }
     }
@@ -49,17 +49,17 @@ class PostsViewModel(
     fun filterPosts(): List<PostUiModel> {
         val allPosts = viewState.posts
 
-        val userNameFilter = mutableState.userNameFilter.trim()
+        val usernameFilter = mutableState.usernameFilter.trim()
         val postContentFilter = mutableState.postContentFilter.trim()
 
         val filteredPosts = allPosts.filter { post ->
             val userById = usersViewModel.viewState.users.find { it.id == post.userId }
 
             // Проверяем, совпадает ли имя пользователя с фильтром (если фильтр не пустой)
-            val matchesUser = if (userNameFilter.isNotEmpty()) {
+            val matchesUser = if (usernameFilter.isNotEmpty()) {
                 userById?.let { user ->
-                    user.name.contains(userNameFilter, ignoreCase = true) || user.userName.contains(
-                        userNameFilter, ignoreCase = true
+                    user.name.contains(usernameFilter, ignoreCase = true) || user.username.contains(
+                        usernameFilter, ignoreCase = true
                     )
                 } ?: false
             } else {
@@ -91,7 +91,7 @@ class PostsViewModel(
         override var posts: List<PostUiModel> by mutableStateOf(emptyList())
         override var error: String? by mutableStateOf(null)
         override var loading: Boolean by mutableStateOf(false)
-        override var userNameFilter: String by mutableStateOf("")
+        override var usernameFilter: String by mutableStateOf("")
         override var postContentFilter: String by mutableStateOf("")
     }
 }

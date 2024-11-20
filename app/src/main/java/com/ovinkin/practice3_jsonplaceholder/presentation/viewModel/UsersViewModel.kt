@@ -17,7 +17,7 @@ import com.ovinkin.practice3_jsonplaceholder.presentation.state.UserState
 private val DEFAULT_USER = UserUiModel(
     id = 0,
     name = "Овинкин Кирилл",
-    userName = "RandoSky",
+    username = "RandoSky",
     email = "ovinkin.kir@gmail.com",
     address = AddressUiModel(
         street = "Мира", suite = "32", city = "Екатеринбург", zipCode = "635354", geo = GeoUiModel(

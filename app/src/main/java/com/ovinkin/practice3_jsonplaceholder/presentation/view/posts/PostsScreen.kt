@@ -62,7 +62,7 @@ fun PostsScreen(
         postsViewModel.getSettings()
     }
 
-    LaunchedEffect(Unit, postsState.userNameFilter, postsState.postContentFilter) {
+    LaunchedEffect(Unit, postsState.usernameFilter, postsState.postContentFilter) {
         posts = postsViewModel.filterPosts()
     }
 
@@ -127,15 +127,15 @@ fun PostsScreen(
 fun PostItem(
     post: PostUiModel, userViewModel: UsersViewModel, onPostClick: () -> Unit
 ) {
-    val userName = remember { mutableStateOf("") }
+    val username = remember { mutableStateOf("") }
 
     // Получение имени пользователя по userId
     LaunchedEffect(post.userId) {
         try {
             val user = userViewModel.fetchUserById(post.userId)
-            userName.value = user.name
+            username.value = user.name
         } catch (e: Exception) {
-            userName.value = "Неизвестный"
+            username.value = "Неизвестный"
         }
     }
 
@@ -194,7 +194,7 @@ fun PostItem(
                     fontSize = 16.sp,
                 )
                 Text(
-                    text = userName.value,
+                    text = username.value,
                     style = MaterialTheme.typography.titleMedium,
                     fontSize = 16.sp,
                     color = MaterialTheme.colorScheme.primary
