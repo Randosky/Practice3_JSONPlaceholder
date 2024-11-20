@@ -18,8 +18,8 @@ val rootModule = module {
     single<IJSONPlaceholderRepository> { JSONPlaceholderRepository(get(), get()) }
     factory { JSONPlaceholderUIMapper() }
     factory { JSONPlaceholderResponseToEntityMapper() }
-    viewModel { PostsViewModel(get(), get()) }
     viewModel { CommentsViewModel(get(), get()) }
     viewModel { UsersViewModel(get(), get()) }
+    viewModel { PostsViewModel(get(), get(), get(), get()) }
     viewModel { SettingsViewModel(get()) }
 }

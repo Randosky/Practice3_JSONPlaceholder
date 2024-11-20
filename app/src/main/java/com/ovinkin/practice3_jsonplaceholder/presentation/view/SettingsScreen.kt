@@ -23,13 +23,11 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import com.ovinkin.practice3_jsonplaceholder.presentation.viewModel.SettingsViewModel
 
 @Composable
 fun SettingsScreen(
     settingsViewModel: SettingsViewModel,
-    navController: NavHostController,
 ) {
 
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -93,7 +91,6 @@ fun SettingsScreen(
         Button(onClick = {
             settingsViewModel.setSettings(userName.text, postContent.text)
             keyboardController?.hide()
-            navController.navigate("posts")
         }) {
             Text("Фильтровать")
         }

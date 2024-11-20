@@ -25,7 +25,6 @@ class SettingsViewModel(
 
     suspend fun getSettings() {
         postsDataStore.getSettings().collect { settings ->
-            Log.w("something", settings.toString())
             userNameFilter = settings.userNameFilter
             postContentFilter = settings.postContentFilter
         }

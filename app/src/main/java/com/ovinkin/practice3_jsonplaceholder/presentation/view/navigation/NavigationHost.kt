@@ -42,7 +42,7 @@ fun NavigationHost(navController: NavHostController) {
             FavouritesScreen()
         }
         composable(NavigationItem.SettingsScreen.route) {
-            SettingsScreen(settingsViewModel, navController)
+            SettingsScreen(settingsViewModel)
         }
     }
 }

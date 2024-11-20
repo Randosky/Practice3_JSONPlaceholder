@@ -18,6 +18,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,6 +31,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavController
 import com.ovinkin.practice3_jsonplaceholder.presentation.model.CommentUiModel
 import com.ovinkin.practice3_jsonplaceholder.presentation.model.PostUiModel
+import com.ovinkin.practice3_jsonplaceholder.presentation.model.user.UserUiModel
 import com.ovinkin.practice3_jsonplaceholder.presentation.viewModel.CommentsViewModel
 import com.ovinkin.practice3_jsonplaceholder.presentation.viewModel.UsersViewModel
 
@@ -40,18 +43,20 @@ fun PostDetailsScreen(
     navController: NavController
 ) {
 
-    LaunchedEffect(Unit) {
-        commentsViewModel.fetchCommentsByPost(post.id)
-        userViewModel.fetchUserById(post.userId)
-    }
-
     val commentsState = commentsViewModel.viewState
     val userState = userViewModel.viewState
+
+    val user = remember { mutableStateOf<UserUiModel?>(null) }
 
     val lazyColumnState = rememberSaveable(saver = LazyListState.Saver) {
         LazyListState(
             0, 0
         )
+    }
+
+    LaunchedEffect(Unit) {
+        commentsViewModel.fetchCommentsByPost(post.id)
+        user.value = userViewModel.fetchUserById(post.userId)
     }
 
     Column(
@@ -119,42 +124,41 @@ fun PostDetailsScreen(
                             end.linkTo(parent.end)
                         }
                         .padding(8.dp))
-                Text(text = "Имя: ${userState.user.name}",
-                    modifier = Modifier
-                        .constrainAs(nameText) {
-                            top.linkTo(title.bottom, margin = 8.dp)
-                            start.linkTo(parent.start)
-                        }
-                        .padding(vertical = 4.dp))
-                Text(text = "Пользователь: ${userState.user.userName}",
+                Text(text = "Имя: ${user.value?.name}", modifier = Modifier
+                    .constrainAs(nameText) {
+                        top.linkTo(title.bottom, margin = 8.dp)
+                        start.linkTo(parent.start)
+                    }
+                    .padding(vertical = 4.dp))
+                Text(text = "Пользователь: ${user.value?.userName}",
                     modifier = Modifier
                         .constrainAs(usernameText) {
                             top.linkTo(nameText.bottom, margin = 4.dp)
                             start.linkTo(parent.start)
                         }
                         .padding(vertical = 4.dp))
-                Text(text = "Email: ${userState.user.email}",
+                Text(text = "Email: ${user.value?.email}",
                     modifier = Modifier
                         .constrainAs(emailText) {
                             top.linkTo(usernameText.bottom, margin = 4.dp)
                             start.linkTo(parent.start)
                         }
                         .padding(vertical = 4.dp))
-                Text(text = "Телефон: ${userState.user.phone}",
+                Text(text = "Телефон: ${user.value?.phone}",
                     modifier = Modifier
                         .constrainAs(phoneText) {
                             top.linkTo(emailText.bottom, margin = 4.dp)
                             start.linkTo(parent.start)
                         }
                         .padding(vertical = 4.dp))
-                Text(text = "Вебсайт: ${userState.user.website}",
+                Text(text = "Вебсайт: ${user.value?.website}",
                     modifier = Modifier
                         .constrainAs(websiteText) {
                             top.linkTo(phoneText.bottom, margin = 4.dp)
                             start.linkTo(parent.start)
                         }
                         .padding(vertical = 4.dp))
-                Text(text = "Компания: ${userState.user.company.name}",
+                Text(text = "Компания: ${user.value?.company?.name}",
                     modifier = Modifier
                         .constrainAs(companyText) {
                             top.linkTo(websiteText.bottom, margin = 4.dp)

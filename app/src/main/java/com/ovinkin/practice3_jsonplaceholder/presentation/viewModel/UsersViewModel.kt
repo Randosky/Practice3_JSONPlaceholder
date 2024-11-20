@@ -44,18 +44,11 @@ class UsersViewModel(
         fetchUsers()
     }
 
-    fun fetchUserById(userId: Int) {
-        viewModelScope.launchLoadingAndError(handleError = {
-            mutableState.error = it.localizedMessage
-        }, updateLoading = { mutableState.loading = it }) {
-            mutableState.user = DEFAULT_USER
-            mutableState.error = null
-
-            mutableState.user = mapper.mapUserById(repository.getUserById(userId))
-        }
+    suspend fun fetchUserById(userId: Int): UserUiModel {
+        return mapper.mapUserById(repository.getUserById(userId))
     }
 
-    fun fetchUsers() {
+    private fun fetchUsers() {
         viewModelScope.launchLoadingAndError(handleError = {
             mutableState.error = it.localizedMessage
         }, updateLoading = { mutableState.loading = it }) {
