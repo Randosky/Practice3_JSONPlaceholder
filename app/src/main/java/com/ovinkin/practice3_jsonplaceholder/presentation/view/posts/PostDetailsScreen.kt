@@ -1,7 +1,9 @@
 package com.ovinkin.practice3_jsonplaceholder.presentation.view.posts
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -12,6 +14,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -28,16 +32,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.ovinkin.practice3_jsonplaceholder.presentation.model.CommentUiModel
 import com.ovinkin.practice3_jsonplaceholder.presentation.model.PostUiModel
 import com.ovinkin.practice3_jsonplaceholder.presentation.model.user.UserUiModel
 import com.ovinkin.practice3_jsonplaceholder.presentation.viewModel.CommentsViewModel
+import com.ovinkin.practice3_jsonplaceholder.presentation.viewModel.PostsViewModel
 import com.ovinkin.practice3_jsonplaceholder.presentation.viewModel.UsersViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun PostDetailsScreen(
     post: PostUiModel,
+    postsViewModel: PostsViewModel,
     commentsViewModel: CommentsViewModel,
     userViewModel: UsersViewModel,
     navController: NavController
@@ -45,6 +53,7 @@ fun PostDetailsScreen(
 
     val commentsState = commentsViewModel.viewState
     val userState = userViewModel.viewState
+    val postState = postsViewModel.viewState
 
     val user = remember { mutableStateOf<UserUiModel?>(null) }
 
@@ -84,6 +93,37 @@ fun PostDetailsScreen(
             fontSize = 16.sp,
             modifier = Modifier.padding(top = 8.dp)
         )
+
+        Row(
+            modifier = Modifier
+                .padding(top = 8.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            androidx.compose.material3.IconButton(onClick = {
+                postsViewModel.viewModelScope.launch {
+                    postsViewModel.toggleFavorite(post)
+                }
+            }) {
+                androidx.compose.material3.Icon(
+                    imageVector = if (postState.isFavorite) {
+                        androidx.compose.material.icons.Icons.Default.Favorite
+                    } else {
+                        androidx.compose.material.icons.Icons.Default.FavoriteBorder
+                    },
+                    contentDescription = "Избранное",
+                    tint = if (postState.isFavorite) Color.Red else Color.Gray
+                )
+            }
+
+            Text(
+                text = "в избранное",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onBackground,
+                fontSize = 16.sp
+            )
+        }
 
         if (userState.loading || commentsState.loading) {
             CircularProgressIndicator()
@@ -184,6 +224,7 @@ fun PostDetailsScreen(
         }
     }
 }
+
 
 @Composable
 fun CommentItem(comment: CommentUiModel) {

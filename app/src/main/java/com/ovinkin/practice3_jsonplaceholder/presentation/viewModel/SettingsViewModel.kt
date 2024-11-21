@@ -1,12 +1,11 @@
 package com.ovinkin.practice3_jsonplaceholder.presentation.viewModel
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ovinkin.practice3_jsonplaceholder.presentation.datastore.PostsDataStore
+import com.ovinkin.practice3_jsonplaceholder.storage.datastore.PostsDataStore
 import com.ovinkin.practice3_jsonplaceholder.presentation.model.SettingsUiModel
 import kotlinx.coroutines.launch
 

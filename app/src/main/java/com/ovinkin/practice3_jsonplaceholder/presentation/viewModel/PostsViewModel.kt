@@ -1,15 +1,18 @@
 package com.ovinkin.practice3_jsonplaceholder.presentation.viewModel
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ovinkin.practice3_jsonplaceholder.domain.repository.IJSONPlaceholderRepository
-import com.ovinkin.practice3_jsonplaceholder.presentation.datastore.PostsDataStore
 import com.ovinkin.practice3_jsonplaceholder.presentation.mapper.JSONPlaceholderUIMapper
 import com.ovinkin.practice3_jsonplaceholder.presentation.model.PostUiModel
 import com.ovinkin.practice3_jsonplaceholder.presentation.state.PostsListState
+import com.ovinkin.practice3_jsonplaceholder.storage.database.dao.PostsDataBase
+import com.ovinkin.practice3_jsonplaceholder.storage.database.entity.PostsEntityDB
+import com.ovinkin.practice3_jsonplaceholder.storage.datastore.PostsDataStore
 import kotlinx.coroutines.launch
 
 class PostsViewModel(
@@ -17,6 +20,7 @@ class PostsViewModel(
     private val mapper: JSONPlaceholderUIMapper,
     private val postsDataStore: PostsDataStore,
     private val usersViewModel: UsersViewModel,
+    private val dataBase: PostsDataBase,
 ) : ViewModel() {
 
     private val mutableState = MutablePostsListState()
@@ -36,13 +40,6 @@ class PostsViewModel(
         } catch (e: Exception) {
             mutableState.posts = emptyList()
             mutableState.error = e.localizedMessage
-        }
-    }
-
-    suspend fun getSettings() {
-        postsDataStore.getSettings().collect { settings ->
-            mutableState.usernameFilter = settings.usernameFilter
-            mutableState.postContentFilter = settings.postContentFilter
         }
     }
 
@@ -87,10 +84,43 @@ class PostsViewModel(
         return viewState.posts.find { it.id == postId }
     }
 
+    suspend fun getSettings() {
+        postsDataStore.getSettings().collect { settings ->
+            mutableState.usernameFilter = settings.usernameFilter
+            mutableState.postContentFilter = settings.postContentFilter
+        }
+    }
+
+    suspend fun toggleFavorite(post: PostUiModel) {
+        mutableState.isFavorite = !mutableState.isFavorite
+
+        // Если пост в избранном, удаляем его из базы данных
+        if (mutableState.isFavorite) {
+            insertDBPost(post)
+        } else {
+            deleteDBPost(post)
+        }
+
+        Log.w("postsData", dataBase.getDao().getAllPosts().toString())
+    }
+
+    private suspend fun insertDBPost(post: PostUiModel) {
+        dataBase.getDao().insertPost(
+            PostsEntityDB(
+                null, userId = post.userId, postId = post.id, title = post.title, body = post.body
+            )
+        )
+    }
+
+    private suspend fun deleteDBPost(post: PostUiModel) {
+        dataBase.getDao().deletePost(postId = post.id)
+    }
+
     private class MutablePostsListState : PostsListState {
         override var posts: List<PostUiModel> by mutableStateOf(emptyList())
         override var error: String? by mutableStateOf(null)
         override var loading: Boolean by mutableStateOf(false)
+        override var isFavorite: Boolean by mutableStateOf(false)
         override var usernameFilter: String by mutableStateOf("")
         override var postContentFilter: String by mutableStateOf("")
     }

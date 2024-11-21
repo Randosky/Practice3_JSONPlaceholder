@@ -35,7 +35,13 @@ fun NavigationHost(navController: NavHostController) {
             val post = postsViewModel.getPostById(postId?.toIntOrNull())
 
             if (post != null) {
-                PostDetailsScreen(post, commentsViewModel, userViewModel, navController)
+                PostDetailsScreen(
+                    post,
+                    postsViewModel,
+                    commentsViewModel,
+                    userViewModel,
+                    navController
+                )
             }
         }
         composable(NavigationItem.FavouritesScreen.route) {

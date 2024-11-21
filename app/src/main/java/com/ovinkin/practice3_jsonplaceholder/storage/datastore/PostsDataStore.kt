@@ -1,4 +1,4 @@
-package com.ovinkin.practice3_jsonplaceholder.presentation.datastore
+package com.ovinkin.practice3_jsonplaceholder.storage.datastore
 
 import android.content.Context
 import androidx.datastore.core.DataStore
