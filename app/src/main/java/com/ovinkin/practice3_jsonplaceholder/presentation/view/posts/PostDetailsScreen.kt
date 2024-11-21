@@ -56,6 +56,7 @@ fun PostDetailsScreen(
     val postState = postsViewModel.viewState
 
     val user = remember { mutableStateOf<UserUiModel?>(null) }
+    val isFavorite = remember { mutableStateOf(postState.isFavorite) }
 
     val lazyColumnState = rememberSaveable(saver = LazyListState.Saver) {
         LazyListState(
@@ -66,6 +67,10 @@ fun PostDetailsScreen(
     LaunchedEffect(Unit) {
         commentsViewModel.fetchCommentsByPost(post.id)
         user.value = userViewModel.fetchUserById(post.userId)
+    }
+
+    LaunchedEffect(post.id) {
+        isFavorite.value = postsViewModel.isPostFavorite(post.id)
     }
 
     Column(
@@ -102,23 +107,25 @@ fun PostDetailsScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             androidx.compose.material3.IconButton(onClick = {
+                isFavorite.value = !isFavorite.value
+
                 postsViewModel.viewModelScope.launch {
                     postsViewModel.toggleFavorite(post)
                 }
             }) {
                 androidx.compose.material3.Icon(
-                    imageVector = if (postState.isFavorite) {
+                    imageVector = if (isFavorite.value) {
                         androidx.compose.material.icons.Icons.Default.Favorite
                     } else {
                         androidx.compose.material.icons.Icons.Default.FavoriteBorder
                     },
                     contentDescription = "Избранное",
-                    tint = if (postState.isFavorite) Color.Red else Color.Gray
+                    tint = if (isFavorite.value) Color.Red else Color.Gray
                 )
             }
 
             Text(
-                text = "в избранное",
+                text = if (isFavorite.value) "удалить из избранного" else "в избранное",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onBackground,
                 fontSize = 16.sp

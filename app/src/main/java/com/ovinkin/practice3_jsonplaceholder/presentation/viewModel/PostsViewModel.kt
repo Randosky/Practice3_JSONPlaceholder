@@ -91,6 +91,16 @@ class PostsViewModel(
         }
     }
 
+    suspend fun isPostFavorite(postId: Int): Boolean {
+        // Получаем пост из базы данных
+        val post = dataBase.getDao().getPostById(postId)
+
+        Log.w("post", post.toString())
+
+        // Если пост найден, возвращаем true, если нет - false
+        return post != null
+    }
+
     suspend fun toggleFavorite(post: PostUiModel) {
         mutableState.isFavorite = !mutableState.isFavorite
 
@@ -100,8 +110,6 @@ class PostsViewModel(
         } else {
             deleteDBPost(post)
         }
-
-        Log.w("postsData", dataBase.getDao().getAllPosts().toString())
     }
 
     private suspend fun insertDBPost(post: PostUiModel) {
