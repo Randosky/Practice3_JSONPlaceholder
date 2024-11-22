@@ -3,7 +3,6 @@ package com.ovinkin.practice3_jsonplaceholder.presentation.view.posts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -53,10 +52,9 @@ fun PostDetailsScreen(
 
     val commentsState = commentsViewModel.viewState
     val userState = userViewModel.viewState
-    val postState = postsViewModel.viewState
 
     val user = remember { mutableStateOf<UserUiModel?>(null) }
-    val isFavorite = remember { mutableStateOf(postState.isFavorite) }
+    val isFavorite = remember { mutableStateOf(false) }
 
     val lazyColumnState = rememberSaveable(saver = LazyListState.Saver) {
         LazyListState(
@@ -99,18 +97,22 @@ fun PostDetailsScreen(
             modifier = Modifier.padding(top = 8.dp)
         )
 
-        Row(
+        Column(
             modifier = Modifier
                 .padding(top = 8.dp)
                 .fillMaxWidth(),
-            horizontalArrangement = Arrangement.End,
-            verticalAlignment = Alignment.CenterVertically
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.End
         ) {
             androidx.compose.material3.IconButton(onClick = {
-                isFavorite.value = !isFavorite.value
-
                 postsViewModel.viewModelScope.launch {
-                    postsViewModel.toggleFavorite(post)
+                    if (!isFavorite.value) {
+                        postsViewModel.insertDBPost(post)
+                    } else {
+                        postsViewModel.deleteDBPost(post)
+                    }
+
+                    isFavorite.value = !isFavorite.value
                 }
             }) {
                 androidx.compose.material3.Icon(

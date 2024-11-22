@@ -1,6 +1,5 @@
 package com.ovinkin.practice3_jsonplaceholder.presentation.viewModel
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -11,7 +10,7 @@ import com.ovinkin.practice3_jsonplaceholder.presentation.mapper.JSONPlaceholder
 import com.ovinkin.practice3_jsonplaceholder.presentation.model.PostUiModel
 import com.ovinkin.practice3_jsonplaceholder.presentation.state.PostsListState
 import com.ovinkin.practice3_jsonplaceholder.storage.database.dao.PostsDataBase
-import com.ovinkin.practice3_jsonplaceholder.storage.database.entity.PostsEntityDB
+import com.ovinkin.practice3_jsonplaceholder.storage.database.mapper.DataBasePostsMapper
 import com.ovinkin.practice3_jsonplaceholder.storage.datastore.PostsDataStore
 import kotlinx.coroutines.launch
 
@@ -21,6 +20,7 @@ class PostsViewModel(
     private val postsDataStore: PostsDataStore,
     private val usersViewModel: UsersViewModel,
     private val dataBase: PostsDataBase,
+    private val databaseMapper: DataBasePostsMapper,
 ) : ViewModel() {
 
     private val mutableState = MutablePostsListState()
@@ -95,32 +95,15 @@ class PostsViewModel(
         // Получаем пост из базы данных
         val post = dataBase.getDao().getPostById(postId)
 
-        Log.w("post", post.toString())
-
         // Если пост найден, возвращаем true, если нет - false
         return post != null
     }
 
-    suspend fun toggleFavorite(post: PostUiModel) {
-        mutableState.isFavorite = !mutableState.isFavorite
-
-        // Если пост в избранном, удаляем его из базы данных
-        if (mutableState.isFavorite) {
-            insertDBPost(post)
-        } else {
-            deleteDBPost(post)
-        }
+    suspend fun insertDBPost(post: PostUiModel) {
+        dataBase.getDao().insertPost(databaseMapper.mapToDatabasePosts(post))
     }
 
-    private suspend fun insertDBPost(post: PostUiModel) {
-        dataBase.getDao().insertPost(
-            PostsEntityDB(
-                null, userId = post.userId, postId = post.id, title = post.title, body = post.body
-            )
-        )
-    }
-
-    private suspend fun deleteDBPost(post: PostUiModel) {
+    suspend fun deleteDBPost(post: PostUiModel) {
         dataBase.getDao().deletePost(postId = post.id)
     }
 
@@ -128,7 +111,6 @@ class PostsViewModel(
         override var posts: List<PostUiModel> by mutableStateOf(emptyList())
         override var error: String? by mutableStateOf(null)
         override var loading: Boolean by mutableStateOf(false)
-        override var isFavorite: Boolean by mutableStateOf(false)
         override var usernameFilter: String by mutableStateOf("")
         override var postContentFilter: String by mutableStateOf("")
     }

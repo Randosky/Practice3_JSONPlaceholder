@@ -7,10 +7,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ovinkin.practice3_jsonplaceholder.storage.datastore.PostsDataStore
 import com.ovinkin.practice3_jsonplaceholder.presentation.model.SettingsUiModel
+import com.ovinkin.practice3_jsonplaceholder.storage.cache.badgeCache.BadgeCache
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(
     private val postsDataStore: PostsDataStore,
+    private val badgeCache: BadgeCache,
 ) : ViewModel() {
 
     var usernameFilter: String by mutableStateOf("")
@@ -26,6 +28,10 @@ class SettingsViewModel(
         postsDataStore.getSettings().collect { settings ->
             usernameFilter = settings.usernameFilter
             postContentFilter = settings.postContentFilter
+
+            badgeCache.updateBadgeFilterCount(
+                settings.usernameFilter, settings.postContentFilter
+            )
         }
     }
 

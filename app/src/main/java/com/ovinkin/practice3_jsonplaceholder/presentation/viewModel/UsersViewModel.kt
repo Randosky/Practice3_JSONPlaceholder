@@ -44,8 +44,11 @@ class UsersViewModel(
         fetchUsers()
     }
 
-    suspend fun fetchUserById(userId: Int): UserUiModel {
-        return mapper.mapUserById(repository.getUserById(userId))
+    fun fetchUserById(userId: Int): UserUiModel {
+        return viewState.users.find { it.id == userId } ?: DEFAULT_USER
+
+        // Для получения по id по запросу
+        // return mapper.mapUserById(repository.getUserById(userId))
     }
 
     private fun fetchUsers() {

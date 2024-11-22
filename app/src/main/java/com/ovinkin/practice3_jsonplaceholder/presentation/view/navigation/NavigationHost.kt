@@ -6,10 +6,11 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.ovinkin.practice3_jsonplaceholder.presentation.view.FavouritesScreen
+import com.ovinkin.practice3_jsonplaceholder.presentation.view.favorites.FavoritesScreen
 import com.ovinkin.practice3_jsonplaceholder.presentation.view.posts.PostDetailsScreen
 import com.ovinkin.practice3_jsonplaceholder.presentation.view.posts.PostsScreen
 import com.ovinkin.practice3_jsonplaceholder.presentation.viewModel.CommentsViewModel
+import com.ovinkin.practice3_jsonplaceholder.presentation.viewModel.FavoritesViewModel
 import com.ovinkin.practice3_jsonplaceholder.presentation.viewModel.PostsViewModel
 import com.ovinkin.practice3_jsonplaceholder.presentation.viewModel.SettingsViewModel
 import com.ovinkin.practice3_jsonplaceholder.presentation.viewModel.UsersViewModel
@@ -22,6 +23,7 @@ fun NavigationHost(navController: NavHostController) {
     val userViewModel = koinViewModel<UsersViewModel>()
     val commentsViewModel = koinViewModel<CommentsViewModel>()
     val settingsViewModel = koinViewModel<SettingsViewModel>()
+    val favoritesViewModel = koinViewModel<FavoritesViewModel>()
 
     NavHost(
         navController, startDestination = NavigationItem.PostsScreen.route
@@ -45,7 +47,7 @@ fun NavigationHost(navController: NavHostController) {
             }
         }
         composable(NavigationItem.FavouritesScreen.route) {
-            FavouritesScreen()
+            FavoritesScreen(favoritesViewModel, navController)
         }
         composable(NavigationItem.SettingsScreen.route) {
             SettingsScreen(settingsViewModel)
