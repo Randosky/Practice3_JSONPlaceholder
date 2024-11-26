@@ -1,6 +1,8 @@
 package com.ovinkin.practice3_jsonplaceholder.presentation.view.posts
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,7 +19,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -28,7 +35,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.ovinkin.practice3_jsonplaceholder.R
 import com.ovinkin.practice3_jsonplaceholder.presentation.model.PostUiModel
-import com.ovinkin.practice3_jsonplaceholder.presentation.model.user.UserUiModel
 import com.ovinkin.practice3_jsonplaceholder.presentation.viewModel.PostsViewModel
 import com.ovinkin.practice3_jsonplaceholder.presentation.viewModel.UsersViewModel
 
@@ -40,10 +46,24 @@ fun PostsScreen(
     val postsState = postsViewModel.viewState
     val userState = userViewModel.viewState
 
+    var posts by remember { mutableStateOf(postsState.posts) }
+
     val lazyColumnState = rememberSaveable(saver = LazyListState.Saver) {
         LazyListState(
             0, 0
         )
+    }
+
+    LaunchedEffect(postsState.posts) {
+        posts = postsState.posts
+    }
+
+    LaunchedEffect(Unit) {
+        postsViewModel.getSettings()
+    }
+
+    LaunchedEffect(Unit, postsState.usernameFilter, postsState.postContentFilter) {
+        posts = postsViewModel.filterPosts()
     }
 
     Column(
@@ -75,9 +95,27 @@ fun PostsScreen(
             }
         } else {
             LazyColumn(modifier = Modifier.fillMaxSize(), lazyColumnState) {
-                items(postsState.posts) { post ->
-                    PostItem(post) {
-                        navController.navigate("post_details/${post.id}")
+                if (posts.isEmpty()) {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(16.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "Посты не найдены",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+                } else {
+                    // Отображаем список постов, если они есть
+                    items(posts) { post ->
+                        PostItem(post, userViewModel) {
+                            navController.navigate("post_details/${post.id}")
+                        }
                     }
                 }
             }
@@ -86,7 +124,20 @@ fun PostsScreen(
 }
 
 @Composable
-fun PostItem(post: PostUiModel, onPostClick: () -> Unit) {
+fun PostItem(
+    post: PostUiModel, userViewModel: UsersViewModel, onPostClick: () -> Unit
+) {
+    val username = remember { mutableStateOf("") }
+
+    // Получение имени пользователя по userId
+    LaunchedEffect(post.userId) {
+        try {
+            val user = userViewModel.fetchUserById(post.userId)
+            username.value = user.name
+        } catch (e: Exception) {
+            username.value = "Неизвестный"
+        }
+    }
 
     Card(
         modifier = Modifier
@@ -130,18 +181,25 @@ fun PostItem(post: PostUiModel, onPostClick: () -> Unit) {
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            Row(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
                 Text(
                     text = "Post ID: ${post.id}",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
-                    modifier = Modifier
-                        .padding(bottom = 4.dp)
-                        .weight(1f)
+                )
+                Text(
+                    text = username.value,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontSize = 16.sp,
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
         }
     }
-
 }

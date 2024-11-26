@@ -7,4 +7,6 @@ import com.ovinkin.practice3_jsonplaceholder.presentation.model.PostUiModel
 @Stable
 interface PostsListState : CommonListState {
     val posts: List<PostUiModel>
+    val usernameFilter: String
+    val postContentFilter: String
 }

@@ -1,26 +1,52 @@
-package com.ovinkin.practice3_jsonplaceholder.presentation.view
-
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.ovinkin.practice3_jsonplaceholder.R
+import com.ovinkin.practice3_jsonplaceholder.presentation.viewModel.SettingsViewModel
 
-@Preview
 @Composable
-fun SettingsScreen() {
+fun SettingsScreen(
+    settingsViewModel: SettingsViewModel,
+) {
+
+    val keyboardController = LocalSoftwareKeyboardController.current
+    var username by remember { mutableStateOf(TextFieldValue(settingsViewModel.usernameFilter)) }
+    var postContent by remember { mutableStateOf(TextFieldValue(settingsViewModel.postContentFilter)) }
+
+    LaunchedEffect(Unit) {
+        settingsViewModel.getSettings()
+    }
+
+    LaunchedEffect(settingsViewModel.usernameFilter) {
+        username = TextFieldValue(settingsViewModel.usernameFilter)
+    }
+
+    LaunchedEffect(settingsViewModel.postContentFilter) {
+        postContent = TextFieldValue(settingsViewModel.postContentFilter)
+    }
+
+
     Column(
         modifier = Modifier
             .padding(16.dp)
@@ -28,14 +54,55 @@ fun SettingsScreen() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        Text(
+        Text(text = "Настройки фильтрации", style = MaterialTheme.typography.titleLarge)
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedTextField(
+            value = username,
+            onValueChange = {
+                username = it
+            },
+            label = { Text("По имени автора") },
             modifier = Modifier.fillMaxWidth(),
-            textAlign = TextAlign.Center,
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary,
-            style = MaterialTheme.typography.titleLarge,
-            text = stringResource(id = R.string.settings_screen),
+            keyboardOptions = KeyboardOptions.Default.copy(
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() })
         )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        OutlinedTextField(
+            value = postContent,
+            onValueChange = {
+                postContent = it
+            },
+            label = { Text("По содержанию поста") },
+            modifier = Modifier.fillMaxWidth(),
+            keyboardOptions = KeyboardOptions.Default.copy(
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() })
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(onClick = {
+            settingsViewModel.setSettings(username.text, postContent.text)
+            keyboardController?.hide()
+        }) {
+            Text("Фильтровать")
+        }
+
+        if (settingsViewModel.usernameFilter.isNotEmpty() || settingsViewModel.postContentFilter.isNotEmpty()) {
+            Button(onClick = {
+                settingsViewModel.resetSettings()
+                keyboardController?.hide()
+            }) {
+                Text("Сбросить фильтры")
+            }
+        }
+
     }
 }

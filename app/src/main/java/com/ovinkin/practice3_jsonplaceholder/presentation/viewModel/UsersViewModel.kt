@@ -17,7 +17,7 @@ import com.ovinkin.practice3_jsonplaceholder.presentation.state.UserState
 private val DEFAULT_USER = UserUiModel(
     id = 0,
     name = "Овинкин Кирилл",
-    userName = "RandoSky",
+    username = "RandoSky",
     email = "ovinkin.kir@gmail.com",
     address = AddressUiModel(
         street = "Мира", suite = "32", city = "Екатеринбург", zipCode = "635354", geo = GeoUiModel(
@@ -44,18 +44,14 @@ class UsersViewModel(
         fetchUsers()
     }
 
-    fun fetchUserById(userId: Int) {
-        viewModelScope.launchLoadingAndError(handleError = {
-            mutableState.error = it.localizedMessage
-        }, updateLoading = { mutableState.loading = it }) {
-            mutableState.user = DEFAULT_USER
-            mutableState.error = null
+    fun fetchUserById(userId: Int): UserUiModel {
+        return viewState.users.find { it.id == userId } ?: DEFAULT_USER
 
-            mutableState.user = mapper.mapUserById(repository.getUserById(userId))
-        }
+        // Для получения по id по запросу
+        // return mapper.mapUserById(repository.getUserById(userId))
     }
 
-    fun fetchUsers() {
+    private fun fetchUsers() {
         viewModelScope.launchLoadingAndError(handleError = {
             mutableState.error = it.localizedMessage
         }, updateLoading = { mutableState.loading = it }) {
